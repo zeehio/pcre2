@@ -1,5 +1,4 @@
-project('pcre2', 'c', version: '10.23')
-# It lacks compilation of 16 and 32 bits versions, but it should be easy to implement
+project('pcre2', 'c', version: '10.23', license: 'BSD-3')
 
 pcre2_h = configure_file(input : 'src/pcre2.h.generic',
   output : 'pcre2.h',
@@ -61,10 +60,27 @@ pcre2_posix_lib = library('pcre2-posix', ['src/pcre2posix.c', 'src/pcre2posix.h'
   c_args: config_h_defs + ['-DHAVE_CONFIG_H', '-DPCRE2_CODE_UNIT_WIDTH=8'],
   install: true)
 
+pcre2_16_lib = library('pcre2-16', sources,
+  include_directories: includes,
+  c_args: config_h_defs + ['-DHAVE_CONFIG_H', '-DPCRE2_CODE_UNIT_WIDTH=16'],
+  install: true)
+
+pcre2_32_lib = library('pcre2-32', sources,
+  include_directories: includes,
+  c_args: config_h_defs + ['-DHAVE_CONFIG_H', '-DPCRE2_CODE_UNIT_WIDTH=32'],
+  install: true)
+
+
 pcre2test = executable('pcre2test', ['src/pcre2test.c'],
   include_directories: includes,
-  link_with: [pcre2_8_lib, pcre2_posix_lib],
+  link_with: [pcre2_8_lib, pcre2_posix_lib, pcre2_16_lib, pcre2_32_lib],
   c_args: config_h_defs + ['-DHAVE_CONFIG_H'])
+
+pcre2grep = executable('pcre2grep', ['src/pcre2grep.c'],
+  include_directories: includes,
+  link_with: [pcre2_8_lib],
+  c_args: config_h_defs + ['-DHAVE_CONFIG_H'],
+  install: true)
 
 ########### pkg-config #############
 
@@ -73,6 +89,16 @@ pkg = import('pkgconfig')
 pkg.generate(libraries : pcre2_8_lib,
              name : 'libpcre2-8',
              description: 'PCRE2 - Perl compatible regular expressions C library (2nd API) with 8 bit character support',
+             version: meson.project_version())
+
+pkg.generate(libraries : pcre2_16_lib,
+             name : 'libpcre2-16',
+             description: 'PCRE2 - Perl compatible regular expressions C library (2nd API) with 16 bit character support',
+             version: meson.project_version())
+
+pkg.generate(libraries : pcre2_32_lib,
+             name : 'libpcre2-32',
+             description: 'PCRE2 - Perl compatible regular expressions C library (2nd API) with 32 bit character support',
              version: meson.project_version())
 
 
