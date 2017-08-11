@@ -70,6 +70,11 @@ pcre2_32_lib = library('pcre2-32', sources,
   c_args: config_h_defs + ['-DHAVE_CONFIG_H', '-DPCRE2_CODE_UNIT_WIDTH=32'],
   install: true)
 
+libpcre2_8 = declare_dependency(link_with: pcre2_8_lib)
+libpcre2_posix = declare_dependency(link_with: pcre2_posix_lib)
+libpcre2_16 = declare_dependency(link_with: pcre2_16_lib)
+libpcre2_32 = declare_dependency(link_with: pcre2_32_lib)
+
 
 pcre2test = executable('pcre2test', ['src/pcre2test.c'],
   include_directories: includes,
